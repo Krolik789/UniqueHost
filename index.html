@@ -1,1 +1,569 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#7c3aed" />
+    <title>DSMP‑Raid — Официальный сайт сервера Minecraft</title>
+    <meta name="description" content="DSMP‑Raid — присоединяйся к нашему Minecraft серверу. Статус, FAQ, карта, магазин и ссылки — всё в одном месте." />
+    <style>
+      :root {
+        --bg-0: #0a0a0f;
+        --bg-1: #0b0a14;
+        --fg: #e9e7ff;
+        --muted: #b8b4d9;
+        --accent: #a855f7; /* violet */
+        --accent-2: #7c3aed; /* purple */
+        --accent-3: #c084fc; /* light violet */
+        --card-bg: rgba(255,255,255,0.06);
+        --card-border: rgba(168,85,247,0.25);
+        --success: #22c55e;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --shadow-glow: 0 0 32px rgba(124, 58, 237, 0.35);
+      }
 
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        color: var(--fg);
+        background: radial-gradient(1200px 800px at 10% 10%, rgba(124,58,237,0.07), transparent 60%),
+                    radial-gradient(1000px 800px at 90% 20%, rgba(168,85,247,0.08), transparent 60%),
+                    radial-gradient(900px 900px at 50% 120%, rgba(192,132,252,0.06), transparent 60%),
+                    linear-gradient(180deg, var(--bg-0), var(--bg-1));
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.55;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+      }
+
+      /* Decorative animated gradient veil */
+      .bg-veil {
+        position: fixed;
+        inset: -20vmax;
+        pointer-events: none;
+        background: conic-gradient(from 0deg at 50% 50%, rgba(124,58,237,0.12), rgba(168,85,247,0.08), rgba(192,132,252,0.10), rgba(124,58,237,0.12));
+        filter: blur(120px) saturate(120%);
+        animation: spin 28s linear infinite;
+        opacity: 0.5;
+        z-index: 0;
+      }
+      @keyframes spin { to { transform: rotate(1turn); } }
+
+      /* Subtle grid overlay */
+      .bg-grid {
+        position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        background-image: linear-gradient(rgba(124,58,237,0.08) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(124,58,237,0.08) 1px, transparent 1px);
+        background-size: 48px 48px, 48px 48px;
+        mask-image: radial-gradient(ellipse at 50% 0%, rgba(0,0,0,0.55), transparent 65%);
+      }
+
+      /* Star canvas sits beneath content but above gradients */
+      #stars {
+        position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.55;
+      }
+
+      header.nav {
+        position: sticky; top: 0; z-index: 20;
+        backdrop-filter: blur(10px);
+        background: color-mix(in oklab, rgba(10,10,15,0.35) 70%, rgba(124,58,237,0.12) 30%);
+        border-bottom: 1px solid rgba(168,85,247,0.25);
+      }
+      .nav-inner { max-width: 1200px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+      .brand { display:flex; gap:10px; align-items:center; text-decoration: none; color: var(--fg); font-weight: 700; letter-spacing: 0.4px; }
+      .brand-logo { width: 28px; height: 28px; display:grid; place-items:center; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow-glow);
+      }
+      .brand span { font-size: 1.05rem; text-transform: uppercase; }
+      nav a { color: var(--fg); opacity: 0.9; text-decoration: none; margin-left: 18px; font-size: 0.98rem; }
+      nav a:hover { opacity: 1; text-shadow: 0 0 10px rgba(168,85,247,0.6); }
+
+      main { position: relative; z-index: 1; }
+      .container { max-width: 1200px; margin: 0 auto; padding: 28px 20px 80px; }
+
+      .hero {
+        display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 32px; align-items: center; padding: 40px 0 18px;
+      }
+      .hero h1 {
+        margin: 0 0 12px; font-size: clamp(36px, 6vw, 64px);
+        line-height: 1.06; letter-spacing: 0.6px;
+        background: linear-gradient(90deg, var(--fg), #ddd6fe 35%, var(--accent-3));
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+        text-shadow: 0 10px 32px rgba(168,85,247,0.25);
+      }
+      .subtitle { color: var(--muted); font-size: clamp(1rem, 1.8vw, 1.125rem); margin-bottom: 18px; }
+
+      .pill {
+        display:inline-flex; align-items:center; gap:10px; border:1px solid var(--card-border); background: rgba(255,255,255,0.04);
+        padding: 8px 12px; border-radius: 999px; font-size: 0.95rem; color: var(--fg);
+      }
+      .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warning); box-shadow: 0 0 18px currentColor; }
+      .dot.online { background: var(--success); }
+      .dot.offline { background: var(--danger); }
+
+      .ip {
+        display:flex; flex-wrap: wrap; gap:10px; align-items:center; margin: 12px 0 18px;
+      }
+      .ip code { background: rgba(255,255,255,0.06); border:1px solid var(--card-border); padding: 10px 14px; border-radius: 12px; font-size: 1rem; }
+      .btn {
+        appearance: none; border: none; cursor: pointer; color: #0b0716; font-weight: 700; letter-spacing: 0.3px;
+        background: linear-gradient(135deg, var(--accent-3), var(--accent));
+        padding: 10px 14px; border-radius: 12px; box-shadow: var(--shadow-glow);
+      }
+      .btn.secondary { background: transparent; color: var(--fg); border:1px solid var(--card-border); box-shadow: none; }
+      .btn:active { transform: translateY(1px); }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        position: relative; overflow: hidden;
+      }
+      .card::before {
+        content: ""; position:absolute; inset: -1px; border-radius: 16px; padding:1px; background: linear-gradient(120deg, rgba(168,85,247,0.65), rgba(124,58,237,0.2), transparent 60%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .grid { display: grid; gap: 16px; }
+      .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+      section { padding: 28px 0; }
+      section h2 { margin: 0 0 14px; font-size: clamp(20px, 2.6vw, 28px); }
+      section p.lead { color: var(--muted); margin: 0 0 18px; }
+
+      .status-items { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+      .status-item { padding: 14px; border-radius: 12px; background: rgba(255,255,255,0.04); border:1px solid var(--card-border); }
+      .status-item .label { color: var(--muted); font-size: 0.9rem; }
+      .status-item .value { font-weight: 700; margin-top: 4px; }
+
+      .links-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+      .link-card { text-decoration: none; color: var(--fg); padding: 18px; border-radius: 14px; border:1px solid var(--card-border); background: rgba(255,255,255,0.04); transition: transform .2s ease, box-shadow .2s ease; display:flex; gap:14px; align-items:center; }
+      .link-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(124,58,237,0.25); }
+      .icon { width: 32px; height: 32px; display:grid; place-items:center; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow-glow); }
+
+      .map-wrap { position: relative; border-radius: 16px; overflow: hidden; border:1px solid var(--card-border); background: rgba(255,255,255,0.03); }
+      .map-frame { width: 100%; aspect-ratio: 16 / 9; border: 0; display:block; }
+      .map-fallback { position:absolute; inset:auto 12px 12px auto; background: rgba(0,0,0,0.5); border:1px solid var(--card-border); color: var(--fg); padding: 8px 12px; border-radius: 999px; text-decoration:none; font-size: 0.9rem; }
+
+      .faq { display:grid; gap: 10px; }
+      .faq-item { border:1px solid var(--card-border); border-radius: 14px; overflow:hidden; background: rgba(255,255,255,0.04); }
+      .faq-header { width:100%; text-align:left; background: transparent; color: var(--fg); padding: 14px 16px; border:0; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+      .faq-content { padding: 0 16px; max-height: 0; overflow: hidden; transition: max-height .28s ease; color: var(--muted); }
+      .faq-item.open .faq-content { padding: 0 16px 14px; }
+
+      footer { padding: 28px 0 60px; color: var(--muted); text-align:center; }
+
+      /* Reveal on scroll */
+      .reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .6s ease; }
+      .reveal.show { opacity: 1; transform: none; }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .hero { grid-template-columns: 1fr; }
+        .grid.cols-3 { grid-template-columns: repeat(2, 1fr); }
+        .links-grid { grid-template-columns: repeat(2, 1fr); }
+        .status-items { grid-template-columns: repeat(2, 1fr); }
+      }
+      @media (max-width: 640px) {
+        nav { display:none; }
+        .grid.cols-3, .grid.cols-2 { grid-template-columns: 1fr; }
+        .links-grid { grid-template-columns: 1fr; }
+        .status-items { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-veil" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <canvas id="stars" aria-hidden="true"></canvas>
+
+    <header class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="#top">
+          <div class="brand-logo" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 12L12 4L20 12L12 20L4 12Z" stroke="white" stroke-opacity=".9" stroke-width="2"/>
+              <circle cx="12" cy="12" r="2.3" fill="white" fill-opacity=".9"/>
+            </svg>
+          </div>
+          <span>DSMP‑Raid</span>
+        </a>
+        <nav>
+          <a href="#status">Статус</a>
+          <a href="#map">Карта</a>
+          <a href="#links">Ссылки</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <div class="container">
+        <!-- HERO -->
+        <section class="hero reveal">
+          <div>
+            <div class="pill" title="Текущий статус сервера">
+              <span id="status-dot" class="dot" aria-hidden="true"></span>
+              <span id="status-text">Проверяем статус…</span>
+            </div>
+            <h1>Присоединяйся к серверу<br>DSMP‑Raid</h1>
+            <p class="subtitle">Эпичные рейды, ванильный дух SMP и честный PvP. Играй с друзьями, участвуй в ивентах и пополняй топ.</p>
+            <div class="ip">
+              <code id="server-ip">dsmp-raid.example.com</code>
+              <button id="copy-btn" class="btn">Скопировать IP</button>
+              <a class="btn secondary" href="#status">Проверить онлайн</a>
+            </div>
+            <div class="grid cols-3">
+              <div class="card">
+                <div class="status-item">
+                  <div class="label">Игроков онлайн</div>
+                  <div class="value" id="players">—</div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="status-item">
+                  <div class="label">Версия</div>
+                  <div class="value" id="version">—</div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="status-item">
+                  <div class="label">MOTD</div>
+                  <div class="value" id="motd">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="min-height: 280px; display:grid; place-items:center; text-align:center;">
+            <div>
+              <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#a855f7"/>
+                    <stop offset="100%" stop-color="#7c3aed"/>
+                  </linearGradient>
+                </defs>
+                <rect x="18" y="18" width="84" height="84" rx="16" fill="url(#g)" opacity="0.15"/>
+                <path d="M40 78V50l20-10 20 10v28l-20 10-20-10z" stroke="#c084fc" stroke-width="3" fill="none"/>
+                <circle cx="60" cy="62" r="6" fill="#c084fc" />
+              </svg>
+              <p class="subtitle" style="max-width: 420px; margin: 8px auto 0;">Красивый минималистичный сайт с анимациями и фокусом на удобство.
+                Настрой IP, магазин, карту и Discord под свой домен.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- STATUS -->
+        <section id="status" class="reveal">
+          <h2>Статус сервера</h2>
+          <p class="lead">Онлайн, версия и количество игроков обновляются автоматически раз в минуту.</p>
+          <div class="grid cols-2">
+            <div class="card">
+              <div class="status-items">
+                <div class="status-item">
+                  <div class="label">Состояние</div>
+                  <div class="value" id="status-state">—</div>
+                </div>
+                <div class="status-item">
+                  <div class="label">Игроки</div>
+                  <div class="value" id="status-players">—</div>
+                </div>
+                <div class="status-item">
+                  <div class="label">Версия</div>
+                  <div class="value" id="status-version">—</div>
+                </div>
+                <div class="status-item">
+                  <div class="label">Последнее обновление</div>
+                  <div class="value" id="status-updated">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:14px;">
+                <div>
+                  <div style="color: var(--muted); font-size: .95rem;">Адрес сервера</div>
+                  <div style="font-weight: 700; margin-top: 4px;" id="status-ip">dsmp-raid.example.com</div>
+                </div>
+                <button id="copy-btn-2" class="btn">Копировать</button>
+              </div>
+              <div style="margin-top:12px; color: var(--muted); font-size:.95rem;">Можно изменить через параметр URL: <code>?ip=ваш.домен</code></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAP -->
+        <section id="map" class="reveal">
+          <h2>Онлайн‑карта</h2>
+          <p class="lead">Поддерживается Dynmap/BlueMap. Укажите ссылку на вашу карту — и мы встроим её на сайт.</p>
+          <div class="map-wrap">
+            <iframe id="map-iframe" class="map-frame" title="Карта сервера" allowfullscreen referrerpolicy="no-referrer"></iframe>
+            <a id="map-link" class="map-fallback" target="_blank" rel="noreferrer noopener">Открыть карту</a>
+          </div>
+        </section>
+
+        <!-- LINKS -->
+        <section id="links" class="reveal">
+          <h2>Ссылки</h2>
+          <p class="lead">Быстрый доступ к важному: магазин доната, карта, Discord и правила.</p>
+          <div class="links-grid">
+            <a id="shop-link" class="link-card" target="_blank" rel="noreferrer noopener">
+              <div class="icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 7h16l-2 11H6L4 7z" stroke="white" stroke-opacity=".95" stroke-width="2"/>
+                  <circle cx="9" cy="19" r="1.6" fill="white"/>
+                  <circle cx="15" cy="19" r="1.6" fill="white"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-weight:700">Магазин</div>
+                <div style="color:var(--muted); font-size:.95rem;">Покупка привилегий и косметики</div>
+              </div>
+            </a>
+            <a id="map-direct" class="link-card" target="_blank" rel="noreferrer noopener">
+              <div class="icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 6l6-2 4 2 6-2v14l-6 2-4-2-6 2V6z" stroke="white" stroke-opacity=".95" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="2.4" fill="white"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-weight:700">Карта</div>
+                <div style="color:var(--muted); font-size:.95rem;">Открыть в новой вкладке</div>
+              </div>
+            </a>
+            <a id="discord-link" class="link-card" target="_blank" rel="noreferrer noopener">
+              <div class="icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 19c-3 2-5 2-8 2s-5 0-8-2c0-5 3-11 8-11s8 6 8 11z" stroke="white" stroke-opacity=".95" stroke-width="2"/>
+                  <circle cx="9" cy="13" r="1.2" fill="white"/>
+                  <circle cx="15" cy="13" r="1.2" fill="white"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-weight:700">Discord</div>
+                <div style="color:var(--muted); font-size:.95rem;">Наше сообщество и новости</div>
+              </div>
+            </a>
+            <a id="rules-link" class="link-card" target="_blank" rel="noreferrer noopener">
+              <div class="icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 4h9l3 3v13H6V4z" stroke="white" stroke-opacity=".95" stroke-width="2"/>
+                  <path d="M9 9h6M9 13h6M9 17h6" stroke="white" stroke-opacity=".95" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-weight:700">Правила</div>
+                <div style="color:var(--muted); font-size:.95rem;">Будь честным — не используй читы</div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="reveal">
+          <h2>FAQ — Частые вопросы</h2>
+          <div class="faq">
+            <div class="faq-item">
+              <button class="faq-header" aria-expanded="false"><span>Как зайти на сервер?</span><span>+</span></button>
+              <div class="faq-content"><p>Запусти Minecraft Java Edition, выбери «Сетевая игра», нажми «Добавить сервер» и укажи адрес <strong id="faq-ip">dsmp-raid.example.com</strong>. Версия сервера отображается в статусе.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-header" aria-expanded="false"><span>Какая версия клиента нужна?</span><span>+</span></button>
+              <div class="faq-content"><p>Мы поддерживаем актуальные версии. Конкретная версия показывается в блоке «Статус». Если используешь моды — убедись, что они совместимы с сервером.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-header" aria-expanded="false"><span>Есть ли донат и как его купить?</span><span>+</span></button>
+              <div class="faq-content"><p>Да, донат доступен в разделе «Магазин». Нажми на карточку и оформи покупку на нашем сайте.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-header" aria-expanded="false"><span>Где посмотреть карту мира?</span><span>+</span></button>
+              <div class="faq-content"><p>Онлайн‑карта (Dynmap/BlueMap) встроена на этой странице. Можно открыть её отдельно по кнопке «Открыть карту».</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-header" aria-expanded="false"><span>Куда писать, если есть вопросы?</span><span>+</span></button>
+              <div class="faq-content"><p>Присоединяйся к нашему <a id="faq-discord" href="#" target="_blank" rel="noreferrer noopener">Discord</a>, там помогают быстрее всего.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="reveal">
+          <div>© <span id="year"></span> DSMP‑Raid. Неофициальный проект Minecraft. Mojang AB не связана с сайтом.</div>
+        </footer>
+      </div>
+    </main>
+
+    <script>
+      // ===== Setup (Edit these to your values) =====
+      const DEFAULTS = {
+        SERVER_ADDRESS: 'dsmp-raid.example.com',
+        MAP_URL: 'https://map.example.com/', // Замените на свой Dynmap/BlueMap URL
+        SHOP_URL: 'https://shop.example.com/',
+        DISCORD_URL: 'https://discord.gg/yourInvite',
+        RULES_URL: 'https://docs.example.com/rules'
+      };
+
+      // Allow override via URL params (?ip=, ?map=, ?shop=, ?discord=, ?rules=)
+      const params = new URLSearchParams(window.location.search);
+      const SERVER_ADDRESS = (params.get('ip') || DEFAULTS.SERVER_ADDRESS).trim();
+      const MAP_URL = (params.get('map') || DEFAULTS.MAP_URL).trim();
+      const SHOP_URL = (params.get('shop') || DEFAULTS.SHOP_URL).trim();
+      const DISCORD_URL = (params.get('discord') || DEFAULTS.DISCORD_URL).trim();
+      const RULES_URL = (params.get('rules') || DEFAULTS.RULES_URL).trim();
+
+      // Apply to UI
+      const ipEls = [document.getElementById('server-ip'), document.getElementById('status-ip'), document.getElementById('faq-ip')].filter(Boolean);
+      ipEls.forEach(el => el.textContent = SERVER_ADDRESS);
+      document.getElementById('map-iframe').src = MAP_URL;
+      document.getElementById('map-link').href = MAP_URL;
+      document.getElementById('map-direct').href = MAP_URL;
+      document.getElementById('shop-link').href = SHOP_URL;
+      document.getElementById('discord-link').href = DISCORD_URL;
+      document.getElementById('faq-discord').href = DISCORD_URL;
+      document.getElementById('rules-link').href = RULES_URL;
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // ===== Copy IP buttons =====
+      function copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text);
+        }
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } finally { ta.remove(); }
+        return Promise.resolve();
+      }
+      function bindCopy(buttonId) {
+        const btn = document.getElementById(buttonId);
+        if (!btn) return;
+        const normal = btn.textContent;
+        btn.addEventListener('click', async () => {
+          try {
+            await copyToClipboard(SERVER_ADDRESS);
+            btn.textContent = 'Скопировано!';
+            setTimeout(() => (btn.textContent = normal), 1400);
+          } catch (e) {
+            btn.textContent = 'Ошибка';
+            setTimeout(() => (btn.textContent = normal), 1400);
+          }
+        });
+      }
+      bindCopy('copy-btn');
+      bindCopy('copy-btn-2');
+
+      // ===== Status via mcsrvstat.us =====
+      const statusDot = document.getElementById('status-dot');
+      const statusText = document.getElementById('status-text');
+      const statusState = document.getElementById('status-state');
+      const statusPlayers = document.getElementById('status-players');
+      const statusVersion = document.getElementById('status-version');
+      const statusUpdated = document.getElementById('status-updated');
+      const heroPlayers = document.getElementById('players');
+      const heroVersion = document.getElementById('version');
+      const heroMotd = document.getElementById('motd');
+
+      async function fetchStatus() {
+        const endpoint = `https://api.mcsrvstat.us/2/${encodeURIComponent(SERVER_ADDRESS)}`;
+        try {
+          const res = await fetch(endpoint, { cache: 'no-store' });
+          const data = await res.json();
+          const online = !!data.online;
+
+          // Dot + text
+          statusDot.classList.toggle('online', online);
+          statusDot.classList.toggle('offline', !online);
+          statusText.textContent = online ? 'Сервер онлайн' : 'Сервер офлайн';
+
+          statusState.textContent = online ? 'Онлайн' : 'Офлайн';
+
+          const playersNow = online && data.players && typeof data.players.online === 'number' ? data.players.online : 0;
+          const playersMax = online && data.players && typeof data.players.max === 'number' ? data.players.max : '—';
+          statusPlayers.textContent = online ? `${playersNow} / ${playersMax}` : '—';
+          heroPlayers.textContent = online ? `${playersNow} / ${playersMax}` : '—';
+
+          const version = online ? (data.version || (Array.isArray(data.software) ? data.software[0] : '—')) : '—';
+          statusVersion.textContent = version;
+          heroVersion.textContent = version;
+
+          const motd = online && data.motd && data.motd.clean ? data.motd.clean.join(' ') : '—';
+          heroMotd.textContent = motd;
+
+          statusUpdated.textContent = new Date().toLocaleTimeString();
+        } catch (e) {
+          statusDot.classList.remove('online');
+          statusDot.classList.add('offline');
+          statusText.textContent = 'Не удалось получить статус';
+          statusState.textContent = 'Ошибка';
+          statusPlayers.textContent = '—';
+          statusVersion.textContent = '—';
+          heroPlayers.textContent = '—';
+          heroVersion.textContent = '—';
+          heroMotd.textContent = '—';
+          statusUpdated.textContent = new Date().toLocaleTimeString();
+        }
+      }
+      fetchStatus();
+      setInterval(fetchStatus, 60_000);
+
+      // ===== FAQ accordion =====
+      document.querySelectorAll('.faq-item').forEach(item => {
+        const btn = item.querySelector('.faq-header');
+        const content = item.querySelector('.faq-content');
+        btn.addEventListener('click', () => {
+          const isOpen = item.classList.toggle('open');
+          btn.setAttribute('aria-expanded', String(isOpen));
+          content.style.maxHeight = isOpen ? content.scrollHeight + 'px' : '0px';
+        });
+      });
+
+      // ===== Reveal on scroll =====
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('show');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+      // ===== Subtle starfield canvas =====
+      (function starfield() {
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        let w, h, stars;
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+        function init() {
+          const count = Math.min(160, Math.floor((w * h) / 18000));
+          stars = new Array(count).fill(0).map(() => ({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            z: Math.random() * 0.6 + 0.4,
+            r: Math.random() * 1.2 + 0.3,
+            a: Math.random() * 0.5 + 0.2,
+            vx: (Math.random() - 0.5) * 0.06,
+            vy: (Math.random() - 0.5) * 0.06
+          }));
+        }
+        function step() {
+          ctx.clearRect(0,0,w,h);
+          for (const s of stars) {
+            s.x += s.vx; s.y += s.vy;
+            if (s.x < -10) s.x = w + 10; if (s.x > w + 10) s.x = -10;
+            if (s.y < -10) s.y = h + 10; if (s.y > h + 10) s.y = -10;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(200, 180, 255, ${s.a})`;
+            ctx.fill();
+          }
+          requestAnimationFrame(step);
+        }
+        window.addEventListener('resize', () => { resize(); init(); });
+        resize(); init(); step();
+      })();
+    </script>
+  </body>
+</html>
